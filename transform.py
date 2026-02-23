@@ -15,6 +15,19 @@ SMA_PERIOD = [20,50] # Simple moving average
 RSI_PERIOD = 14 # Standard period for RSI being 14 candles
 VOLATILITY_WINDOW = 20 # 20 day rolling volatility
 
+
+def clean_data(df):
+    """Handles missing values and duplicated rows."""
+    print("Cleaning raw data...", end = " ", flush= True)
+    initial_rows = len(df)
+    df = df.drop_duplicates(subset =['Ticker','Date'], keep = 'first')
+    dupes_dropped = initial_rows - len(df)
+
+    df = df.ffill().dropna()
+    print(f"Done, dropped {dupes_dropped} duplicate rows.")
+    return df
+
+
 def calculate_returns(df):
     """ Calculate daily percentage returns"""
     df = df.sort_values(['Ticker','Date'])
@@ -72,6 +85,8 @@ def main():
     df = pd.read_csv(input_file)
 
     print("\n Applying transformations...")
+    df = clean_data(df)
+
     df = calculate_returns(df)
     df = calculate_sma(df, SMA_PERIOD)
     df = calculate_rsi(df, RSI_PERIOD)
