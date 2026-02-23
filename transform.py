@@ -18,7 +18,7 @@ VOLATILITY_WINDOW = 20 # 20 day rolling volatility
 def calculate_returns(df):
     """ Calculate daily percentage returns"""
     df = df.sort_values(['Ticker','Date'])
-    df['Daily return'] = df.groupby('Ticker')['Close'].pct_change()
+    df['Daily_Return'] = df.groupby('Ticker')['Close'].pct_change()
     df['Daily_Return'] = df['Daily_Return'].round(4)
 
     return df
@@ -46,6 +46,50 @@ def calculate_rsi(df, periods = 14):
         rs = gain/loss
         rsi = 100 - (100 / (1 + rs))
         return rsi
-    df['RSI'] = df.groupby('Ticker', group_keys=False).apply(rsi_for_ticker).values
+    df['RSI'] = df.groupby('Ticker', group_keys=False).apply(rsi_for_ticker, include_groups=False).values
     df['RSI'] = df['RSI'].round(2)
     return df
+
+def calculate_volatility(df, window = 20):
+    """ Calculates rolling volatility (std dev of returns"""
+    df = df.sort_values(['Ticker', 'Date'])
+    df['Volatility'] = df.groupby('Ticker')['Daily_Return'].transform( lambda x: x.rolling(window=window, min_periods=1).std())
+    return df
+
+def main():
+    print("=" * 60)
+    print("STOCK DATA TRANSFORMATION PIPELINE")
+    print("=" * 60)
+
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    input_file = f"{INPUT_DIR}/stock_data_latest.csv"
+    if not os.path.exists(input_file):
+        print("Error: Cannot find {input_file}, make sure to run extract.py first")
+        return
+
+    print(f"Loading raw data from :{input_file}")
+    df = pd.read_csv(input_file)
+
+    print("\n Applying transformations...")
+    df = calculate_returns(df)
+    df = calculate_sma(df, SMA_PERIOD)
+    df = calculate_rsi(df, RSI_PERIOD)
+    df = calculate_volatility(df, VOLATILITY_WINDOW)
+    print("All indicators calculated")
+
+    timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    output_file = f"{OUTPUT_DIR}/transformed_data_{timestamp}.csv"
+    latest_file = f"{OUTPUT_DIR}/transformed_data_latest.csv"
+    df.to_csv(output_file, index=False)
+    df.to_csv(latest_file, index=False)
+
+    print("\n" + "=" * 60)
+    print("TRANSFORMATION SUCCESSFUL")
+    print(f"Total Rows: {len(df):,}")
+    print(f"New Columns Added: Daily_Return, SMA_20, SMA_50, RSI, Volatility")
+    print(f"Saved to: {latest_file}")
+    print("=" * 60)
+
+if __name__ == "__main__":
+    main()
