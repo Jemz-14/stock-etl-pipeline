@@ -83,6 +83,30 @@ def plot_correlation_matrix(df):
     plt.savefig(f'{VIS_DIR}/05_correlation_matrix.png')
     plt.close()
 
+def plot_rsi_heatmap(df):
+    """ RSI heatmap showing overbought/oversold conditions over a month"""
+
+    latest_date = df['date'].max()
+    cutoff_date = latest_date - timedelta(days = 31)
+    recent_df = df[df['date'] >= cutoff_date]
+
+    pivot_rsi = recent_df.pivot(index='ticker', columns='date', values='rsi')
+
+    pivot_rsi.columns = pivot_rsi.columns.strftime('%m-%d')
+
+    plt.figure(figsize=(12,6))
+    sns.heatmap(pivot_rsi, cmap='RdYlGn_r', center=50, vmin=20, vmax=80,
+                annot=True, fmt=".0f", linewidths=.5)
+
+    plt.title("14-day RSI heatmap over a 30 day period (Overbought > 70, Oversold < 30)", fontsize = 14, fontweight='bold')
+    plt.xlabel('Date')
+    plt.ylabel('Ticker')
+    plt.tight_layout()
+
+    plt.savefig(f"{VIS_DIR}/06_rsi_heatmap.png")
+    plt.close()
+
+
 def main():
     print("=" * 60)
     print("STOCK DATA VISUALISATION")
@@ -97,9 +121,10 @@ def main():
     plot_price_trends(df)
     plot_performance(df)
     plot_correlation_matrix(df)
+    plot_rsi_heatmap(df)
 
     print("\n" + "=" * 60)
-    print(f"✓ VISUALIZATIONS SAVED TO: {VIS_DIR}/")
+    print(f"VISUALIZATIONS SAVED TO: {VIS_DIR}/")
     print("=" * 60)
 
 if __name__ == "__main__":
