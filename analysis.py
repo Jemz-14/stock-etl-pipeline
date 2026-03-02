@@ -80,7 +80,7 @@ def plot_correlation_matrix(df):
     plt.title('Stock Return Correlation Matrix', fontsize=16, fontweight='bold')
     plt.tight_layout()
 
-    plt.savefig(f'{VIS_DIR}/05_correlation_matrix.png')
+    plt.savefig(f'{VIS_DIR}/03_correlation_matrix.png')
     plt.close()
 
 def plot_rsi_heatmap(df):
@@ -103,9 +103,34 @@ def plot_rsi_heatmap(df):
     plt.ylabel('Ticker')
     plt.tight_layout()
 
-    plt.savefig(f"{VIS_DIR}/06_rsi_heatmap.png")
+    plt.savefig(f"{VIS_DIR}/04_rsi_heatmap.png")
     plt.close()
 
+
+def plot_volume_grid(df):
+    """4. Volume Grid - Small multiples for each ticker with independent scales"""
+    print("Generating Volume Trends Grid...")
+
+    # relplot automatically builds a grid of subplots
+    g = sns.relplot(
+        data=df,
+        x='date',
+        y='volume',
+        col='ticker',  # Create a new chart for each ticker
+        col_wrap=3,  # Put 3 charts per row
+        kind='line',
+        height=3,  # Height of each mini-chart
+        aspect=1.5,  # Width ratio
+        facet_kws={'sharey': False}  # MAGIC TRICK: Gives each chart its own Y-axis scale
+    )
+
+    # Adjust titles and labels
+    g.fig.suptitle('Trading Volume Trends by Ticker (Independent Scales)', fontsize=16, fontweight='bold', y=1.05)
+    g.set_axis_labels('Date', 'Total Volume')
+    g.set_titles('{col_name}')  # Just names the mini-chart "AAPL", "MSFT", etc.
+
+    plt.savefig(f'{VIS_DIR}/04_volume_grid.png', bbox_inches='tight')
+    plt.close()
 
 def main():
     print("=" * 60)
@@ -122,10 +147,13 @@ def main():
     plot_performance(df)
     plot_correlation_matrix(df)
     plot_rsi_heatmap(df)
+    plot_volume_grid(df)
 
     print("\n" + "=" * 60)
     print(f"VISUALIZATIONS SAVED TO: {VIS_DIR}/")
     print("=" * 60)
+
+
 
 if __name__ == "__main__":
     main()
