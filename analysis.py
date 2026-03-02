@@ -107,31 +107,39 @@ def plot_rsi_heatmap(df):
     plt.close()
 
 
-def plot_volume_grid(df):
-    """4. Volume Grid - Small multiples for each ticker with independent scales"""
-    print("Generating Volume Trends Grid...")
+def plot_market_volume_profile(df, target_ticker='SPY'):
+    """ Dual-Pane Volume Profile - Price action combined with directional volume"""
+    print(f"Generating Dual-Pane Volume Profile for {target_ticker}...")
 
-    # relplot automatically builds a grid of subplots
-    g = sns.relplot(
-        data=df,
-        x='date',
-        y='volume',
-        col='ticker',  # Create a new chart for each ticker
-        col_wrap=3,  # Put 3 charts per row
-        kind='line',
-        height=3,  # Height of each mini-chart
-        aspect=1.5,  # Width ratio
-        facet_kws={'sharey': False}  # MAGIC TRICK: Gives each chart its own Y-axis scale
-    )
+    # Isolate the data for just our market proxy
+    market_df = df[df['ticker'] == target_ticker].copy()
 
-    # Adjust titles and labels
-    g.fig.suptitle('Trading Volume Trends by Ticker (Independent Scales)', fontsize=16, fontweight='bold', y=1.05)
-    g.set_axis_labels('Date', 'Total Volume')
-    g.set_titles('{col_name}')  # Just names the mini-chart "AAPL", "MSFT", etc.
+    # Look at just the last 90 days so the bars are thick and readable
+    cutoff_date = market_df['date'].max() - timedelta(days=90)
+    recent_df = market_df[market_df['date'] >= cutoff_date]
 
-    plt.savefig(f'{VIS_DIR}/04_volume_grid.png', bbox_inches='tight')
+    # Set up a 2-row grid. Top row is 3x taller than the bottom row.
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 8), gridspec_kw={'height_ratios': [3, 1]})
+
+    # Top chart: Price Action
+    sns.lineplot(data=recent_df, x='date', y='close', ax=ax1, color='#2c3e50', linewidth=2)
+    ax1.set_title(f'{target_ticker} Market Volume Profile (Last 90 Days)', fontsize=16, fontweight='bold')
+    ax1.set_ylabel('Closing Price ($)', fontsize=12)
+    ax1.set_xlabel('')  # Hide the X-axis label so it doesn't clash with the bottom chart
+    ax1.grid(True, linestyle='--', alpha=0.6)
+
+    # Bottom chart : Directional Volume
+    # Create a list of colours: Green if today's return is positive, Red if negative
+    colors = ['#2ecc71' if val > 0 else '#e74c3c' for val in recent_df['daily_return']]
+
+    ax2.bar(recent_df['date'], recent_df['volume'], color=colors, alpha=0.8)
+    ax2.set_ylabel('Volume Traded', fontsize=12)
+    ax2.set_xlabel('Date', fontsize=12)
+    ax2.grid(True, linestyle='--', alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(f'{VIS_DIR}/04_{target_ticker}_volume_profile.png')
     plt.close()
-
 def main():
     print("=" * 60)
     print("STOCK DATA VISUALISATION")
@@ -147,7 +155,7 @@ def main():
     plot_performance(df)
     plot_correlation_matrix(df)
     plot_rsi_heatmap(df)
-    plot_volume_grid(df)
+    plot_market_volume_profile(df)
 
     print("\n" + "=" * 60)
     print(f"VISUALIZATIONS SAVED TO: {VIS_DIR}/")
