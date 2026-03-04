@@ -140,6 +140,43 @@ def plot_market_volume_profile(df, target_ticker='SPY'):
     plt.tight_layout()
     plt.savefig(f'{VIS_DIR}/04_{target_ticker}_volume_profile.png')
     plt.close()
+
+
+def plot_risk_vs_return(df):
+    """ Scatter plot mapping annualized volatility against performance"""
+    print("Generating Risk vs Return Scatter Plot...")
+
+    # Calculate average daily return and volatility
+    summary = df.groupby('ticker').agg(
+        avg_return=('daily_return', 'mean'),
+        avg_volatility=('volatility', 'mean')
+    ).reset_index()
+
+    # Annualize the numbers (standard Wall Street practice: 252 trading days in a year)
+    summary['annual_return'] = summary['avg_return'] * 252 * 100
+    summary['annual_volatility'] = summary['avg_volatility'] * (252 ** 0.5) * 100
+
+    plt.figure(figsize=(10, 8))
+    sns.scatterplot(data=summary, x='annual_volatility', y='annual_return', s=250, color='#3498db')
+
+    # Add text labels to each dot so we know which stock is which
+    for i, row in summary.iterrows():
+        plt.text(row['annual_volatility'] + 0.3, row['annual_return'] + 0.3,
+                 row['ticker'], fontsize=11, fontweight='bold')
+
+    # Add crosshairs at 0% return
+    plt.axhline(0, color='black', linestyle='--', linewidth=1)
+
+    plt.title('Risk vs. Return Matrix (Annualized)', fontsize=16, fontweight='bold')
+    plt.xlabel('Annualized Volatility (Risk) %', fontsize=14)
+    plt.ylabel('Annualized Expected Return (Reward) %', fontsize=14)
+    plt.grid(True, linestyle=':', alpha=0.6)
+    plt.tight_layout()
+
+    plt.savefig(f'{VIS_DIR}/05_risk_vs_return.png')
+    plt.close()
+
+
 def main():
     print("=" * 60)
     print("STOCK DATA VISUALISATION")
@@ -156,6 +193,7 @@ def main():
     plot_correlation_matrix(df)
     plot_rsi_heatmap(df)
     plot_market_volume_profile(df)
+    plot_risk_vs_return(df)
 
     print("\n" + "=" * 60)
     print(f"VISUALIZATIONS SAVED TO: {VIS_DIR}/")
