@@ -1,0 +1,26 @@
+2026-03-05 12:12:10,164 - INFO - ========================================
+2026-03-05 12:12:10,165 - INFO - INITIATING MASTER ETL PIPELINE
+2026-03-05 12:12:10,165 - INFO - ========================================
+2026-03-05 12:12:10,165 - INFO - RUNNING SCRIPT extract.py
+2026-03-05 12:12:10,860 - ERROR - FAILED RUNNING SCRIPT extract.py with error code 1
+2026-03-05 12:15:04,078 - INFO - ========================================
+2026-03-05 12:15:04,079 - INFO - INITIATING MASTER ETL PIPELINE
+2026-03-05 12:15:04,079 - INFO - ========================================
+2026-03-05 12:15:04,086 - INFO - RUNNING SCRIPT extract.py
+2026-03-05 12:15:05,928 - INFO - SUCCESSFULLY RUNNING SCRIPT extract.py
+2026-03-05 12:15:05,929 - INFO - RUNNING SCRIPT transform.py
+2026-03-05 12:15:07,294 - ERROR - FAILED RUNNING SCRIPT transform.py with error code 1
+2026-03-05 12:18:55,527 - INFO - ========================================
+2026-03-05 12:18:55,527 - INFO - INITIATING MASTER ETL PIPELINE
+2026-03-05 12:18:55,527 - INFO - ========================================
+2026-03-05 12:18:55,528 - INFO - RUNNING SCRIPT extract.py
+2026-03-05 12:19:09,426 - INFO - SUCCESSFULLY RUNNING SCRIPT extract.py
+2026-03-05 12:19:09,426 - INFO - RUNNING SCRIPT transform.py
+2026-03-05 12:19:11,124 - INFO - SUCCESSFULLY RUNNING SCRIPT transform.py
+2026-03-05 12:19:11,124 - INFO - RUNNING SCRIPT load.py
+2026-03-05 12:19:12,925 - INFO - SUCCESSFULLY RUNNING SCRIPT load.py
+2026-03-05 12:19:12,926 - INFO - RUNNING SCRIPT analysis.py
+2026-03-05 12:19:18,132 - INFO - SUCCESSFULLY RUNNING SCRIPT analysis.py
+2026-03-05 12:19:18,132 - INFO - ========================================
+2026-03-05 12:19:18,132 - INFO - PIPELINE COMPLETED
+2026-03-05 12:19:18,132 - INFO - ========================================

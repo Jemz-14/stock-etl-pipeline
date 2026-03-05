@@ -8,6 +8,10 @@ import numpy as np
 import os
 from glob import glob
 from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 INPUT_DIR = 'data/raw'
 OUTPUT_DIR = 'data/processed'
@@ -18,13 +22,13 @@ VOLATILITY_WINDOW = 20 # 20 day rolling volatility
 
 def clean_data(df):
     """Handles missing values and duplicated rows."""
-    print("Cleaning raw data...", end = " ", flush= True)
+    logger.info("Cleaning raw data...")
     initial_rows = len(df)
     df = df.drop_duplicates(subset =['Ticker','Date'], keep = 'first')
     dupes_dropped = initial_rows - len(df)
 
     df = df.ffill().dropna()
-    print(f"Done, dropped {dupes_dropped} duplicate rows.")
+    logger.info(f"Done, dropped {dupes_dropped} duplicate rows.")
     return df
 
 
@@ -70,28 +74,28 @@ def calculate_volatility(df, window = 20):
     return df
 
 def main():
-    print("=" * 60)
-    print("STOCK DATA TRANSFORMATION PIPELINE")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("STOCK DATA TRANSFORMATION PIPELINE")
+    logger.info("=" * 60)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     input_file = f"{INPUT_DIR}/stock_data_latest.csv"
     if not os.path.exists(input_file):
-        print("Error: Cannot find {input_file}, make sure to run extract.py first")
+        logger.info("Error: Cannot find {input_file}, make sure to run extract.py first")
         return
 
-    print(f"Loading raw data from :{input_file}")
+    logger.info(f"Loading raw data from :{input_file}")
     df = pd.read_csv(input_file)
 
-    print("\n Applying transformations...")
+    logger.info("\n Applying transformations...")
     df = clean_data(df)
 
     df = calculate_returns(df)
     df = calculate_sma(df, SMA_PERIOD)
     df = calculate_rsi(df, RSI_PERIOD)
     df = calculate_volatility(df, VOLATILITY_WINDOW)
-    print("All indicators calculated")
+    logger.info("All indicators calculated")
 
     timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     output_file = f"{OUTPUT_DIR}/transformed_data_{timestamp}.csv"
@@ -99,12 +103,12 @@ def main():
     df.to_csv(output_file, index=False)
     df.to_csv(latest_file, index=False)
 
-    print("\n" + "=" * 60)
-    print("TRANSFORMATION SUCCESSFUL")
-    print(f"Total Rows: {len(df):,}")
-    print(f"New Columns Added: Daily_Return, SMA_20, SMA_50, RSI, Volatility")
-    print(f"Saved to: {latest_file}")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("TRANSFORMATION SUCCESSFUL")
+    logger.info(f"Total Rows: {len(df):,}")
+    logger.info(f"New Columns Added: Daily_Return, SMA_20, SMA_50, RSI, Volatility")
+    logger.info(f"Saved to: {latest_file}")
+    logger.info("=" * 60)
 
 if __name__ == "__main__":
     main()

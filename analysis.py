@@ -6,13 +6,17 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 from datetime import timedelta
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 DB_PATH = 'data/stock_data.db'
 VIS_DIR = 'data/visualisations'
 
 def fetch_data():
     """Connects to DB and loads all data into a pandas dataframe"""
-    print("Loading data from database...")
+    logger.info("Loading data from database...")
     conn = sqlite3.connect(DB_PATH)
     df = pd.read_sql_query("SELECT * FROM stock_data", conn,parse_dates=['date'])
     conn.close()
@@ -20,7 +24,7 @@ def fetch_data():
 
 def plot_price_trends(df):
     """ Line chart showing 90-day price movements"""
-    print("Generating 90 day price trends...")
+    logger.info("Generating 90 day price trends...")
 
     latest_date = df['date'].max()
     cutoff_date = latest_date - timedelta(days = 90)
@@ -40,7 +44,7 @@ def plot_price_trends(df):
 
 def plot_performance(df):
     """ Bar chart showing 30-day performance (green for profit red for loss)"""
-    print("Generating 30 day performance chart...")
+    logger.info("Generating 30 day performance chart...")
 
     latest_date = df['date'].max()
     cutoff_date = latest_date - timedelta(days = 30)
@@ -68,7 +72,7 @@ def plot_performance(df):
 
 def plot_correlation_matrix(df):
     """ Heatmap showing how stocks move together"""
-    print("Generating correlation matrix...")
+    logger.info("Generating correlation matrix...")
 
     pivot_df = df.pivot(index='date', columns='ticker', values='daily_return')
 
@@ -109,7 +113,7 @@ def plot_rsi_heatmap(df):
 
 def plot_market_volume_profile(df, target_ticker='SPY'):
     """ Dual-Pane Volume Profile - Price action combined with directional volume"""
-    print(f"Generating Dual-Pane Volume Profile for {target_ticker}...")
+    logger.info(f"Generating Dual-Pane Volume Profile for {target_ticker}...")
 
     # Isolate the data for just our market proxy
     market_df = df[df['ticker'] == target_ticker].copy()
@@ -144,7 +148,7 @@ def plot_market_volume_profile(df, target_ticker='SPY'):
 
 def plot_risk_vs_return(df):
     """ Scatter plot mapping annualized volatility against performance"""
-    print("Generating Risk vs Return Scatter Plot...")
+    logger.info("Generating Risk vs Return Scatter Plot...")
 
     # Calculate average daily return and volatility
     summary = df.groupby('ticker').agg(
@@ -178,9 +182,9 @@ def plot_risk_vs_return(df):
 
 
 def main():
-    print("=" * 60)
-    print("STOCK DATA VISUALISATION")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("STOCK DATA VISUALISATION")
+    logger.info("=" * 60)
 
     os.makedirs(VIS_DIR, exist_ok=True)
 
@@ -195,9 +199,9 @@ def main():
     plot_market_volume_profile(df)
     plot_risk_vs_return(df)
 
-    print("\n" + "=" * 60)
-    print(f"VISUALIZATIONS SAVED TO: {VIS_DIR}/")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info(f"VISUALIZATIONS SAVED TO: {VIS_DIR}/")
+    logger.info("=" * 60)
 
 
 

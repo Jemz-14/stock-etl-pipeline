@@ -6,6 +6,10 @@ from glob import glob
 import os
 from datetime import datetime
 import numpy as np
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 sqlite3.register_adapter(np.int64, int)
 sqlite3.register_adapter(np.float64, float)
@@ -50,7 +54,7 @@ def create_database():
 
     conn.commit()
     conn.close()
-    print("Database and table created")
+    logger.info("Database and table created")
 
 def load_latest_transformed_file():
     files = glob(f"{INPUT_DIR}/transformed_data_*.csv")
@@ -59,7 +63,7 @@ def load_latest_transformed_file():
         raise FileNotFoundError(f"No transformed files found in {INPUT_DIR}")
 
     latest_file = max(files, key=os.path.getctime)
-    print(f"Loading: {latest_file}")
+    logger.info(f"Loading: {latest_file}")
     return pd.read_csv(latest_file)
 
 def clean_data(df):
@@ -113,7 +117,7 @@ def insert_data(df):
                ''', tuple(row))
             inserted += 1
         except Exception as e:
-            print(f"Skipped row: {e}")
+            logger.info(f"Skipped row: {e}")
             skipped += 1
 
     conn.commit()
@@ -122,33 +126,33 @@ def insert_data(df):
     return inserted, skipped
 
 def main():
-    print("=" * 60)
-    print("STOCK DATA LOAD")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("STOCK DATA LOAD")
+    logger.info("=" * 60)
 
     create_database()
 
     # Load transformed data
-    print("\nLoading transformed data...")
+    logger.info("\nLoading transformed data...")
     df = load_latest_transformed_file()
-    print(f"Loaded: {len(df)} rows")
+    logger.info(f"Loaded: {len(df)} rows")
 
     # Clean data
-    print("\nCleaning data...")
+    logger.info("\nCleaning data...")
     df = clean_data(df)
-    print(f"Data cleaned")
+    logger.info(f"Data cleaned")
 
     # Insert data in database
-    print("\nInserting data...")
+    logger.info("\nInserting data...")
     inserted, skipped = insert_data(df)
 
     # Summary
-    print("\n" + "=" * 60)
-    print("LOAD COMPLETE")
-    print(f"  • Inserted: {inserted:,} rows")
-    print(f"  • Skipped: {skipped} rows")
-    print(f"  • Database: {DB_PATH}")
-    print("=" * 60)
+    logger.info("\n" + "=" * 60)
+    logger.info("LOAD COMPLETE")
+    logger.info(f"  • Inserted: {inserted:,} rows")
+    logger.info(f"  • Skipped: {skipped} rows")
+    logger.info(f"  • Database: {DB_PATH}")
+    logger.info("=" * 60)
 
     # Verify data
     conn = sqlite3.connect(DB_PATH)
@@ -159,9 +163,9 @@ def main():
     tickers = cursor.fetchone()[0]
     conn.close()
 
-    print(f"\nDatabase Stats:")
-    print(f"  • Total records: {total:,}")
-    print(f"  • Unique tickers: {tickers}")
+    logger.info(f"\nDatabase Stats:")
+    logger.info(f"  • Total records: {total:,}")
+    logger.info(f"  • Unique tickers: {tickers}")
 
 if __name__ == "__main__":
     main()

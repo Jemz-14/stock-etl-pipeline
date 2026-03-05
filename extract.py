@@ -8,6 +8,10 @@ import pandas as pd
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 # Configuration
 TICKERS = ['SPY', 'QQQ', 'NVDA', 'MSFT', 'AMZN', 'JPM', 'JNJ', 'XOM', 'TSLA', 'V']
@@ -18,7 +22,7 @@ LOOKBACK_DAYS = 365 # 1 year of historical data
 ''' Creates output directory if it does not exist'''
 def setup_directories():
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    print(f"Directory ready: {RAW_DIR}")
+    logger.info(f"Directory ready: {RAW_DIR}")
 
 
 def fetch_stock_data(ticker: str, start_date: str, end_date: str):
@@ -26,13 +30,12 @@ def fetch_stock_data(ticker: str, start_date: str, end_date: str):
     Fetches historical stock data for a single ticker.
     """
     try:
-        print(f"Fetching {ticker} stock data from Yahoo Finance...", end = " ", flush = True)
-
+        logger.info(f"Fetching {ticker} stock data from Yahoo Finance...")
         stock = yf.Ticker(ticker)
         df = stock.history(start=start_date, end=end_date)
 
         if df.empty:
-            print(f"No data found for {ticker}.")
+            logger.info(f"No data found for {ticker}.")
             return None
         # Cleans up columns to prevent yahoo from giving us other columns
         target_cols = ['Open', 'High', 'Low', 'Close', 'Volume']
@@ -48,18 +51,18 @@ def fetch_stock_data(ticker: str, start_date: str, end_date: str):
         df['Ticker'] = ticker
         df = df[['Ticker', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume']] # Better readability
 
-        print(f"{len(df)} stock data found for {ticker}.")
+        logger.info(f"{len(df)} stock data found for {ticker}.")
 
         return df
     except Exception as e:
-        print(f"Error fetching {ticker}: {e}")
+        logger.info(f"Error fetching {ticker}: {e}")
         return None
 
 def main():
     """Main function"""
-    print("=" * 60)
-    print("STOCK DATA EXTRACTION PIPELINE")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("STOCK DATA EXTRACTION PIPELINE")
+    logger.info("=" * 60)
 
     setup_directories()
 
@@ -69,8 +72,8 @@ def main():
     start_str = start_date_obj.strftime("%Y-%m-%d")
     end_str = end_data_obj.strftime("%Y-%m-%d")
 
-    print(f"\nDate Range: {start_str} to {end_str}")
-    print(f"Targeting: {len(TICKERS)} stocks\n")
+    logger.info(f"\nDate Range: {start_str} to {end_str}")
+    logger.info(f"Targeting: {len(TICKERS)} stocks\n")
 
     all_data = []
 
@@ -91,19 +94,19 @@ def main():
         combined_df.to_csv(output_file,index=False)
         combined_df.to_csv(latest_file,index=False)
 
-        print("\n" + "=" * 60)
-        print(f"Extraction successful")
-        print(f" • Total Rows: {len(combined_df):,}")
-        print(f" • Unique Tickers: {combined_df['Ticker'].nunique()}")
-        print(f" • Saved to: {output_file}")
-        print(f" • Updated:  {latest_file}")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60)
+        logger.info(f"Extraction successful")
+        logger.info(f" • Total Rows: {len(combined_df):,}")
+        logger.info(f" • Unique Tickers: {combined_df['Ticker'].nunique()}")
+        logger.info(f" • Saved to: {output_file}")
+        logger.info(f" • Updated:  {latest_file}")
+        logger.info("=" * 60)
 
-        print("\nSample Data:")
-        print(combined_df.head())
+        logger.info("\nSample Data:")
+        logger.info(combined_df.head())
     
     else:
-        print("Failed to extract data")
+        logger.info("Failed to extract data")
 
 if __name__ == "__main__":
     main()
