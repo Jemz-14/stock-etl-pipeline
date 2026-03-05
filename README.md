@@ -39,6 +39,19 @@ The pipeline automatically renders the following reports:
 *A dynamic heatmap identifying overbought (>70) and oversold (<30) market conditions across the portfolio.*
 ![RSI Heatmap](data/visualisations/04_rsi_heatmap.png)
 
+### 4. 90-Day Price Action Trends
+*This baseline line chart maps the raw closing prices of all target equities over a medium-term (90-day) horizon. It provides a macro-level view of general market direction and individual asset momentum, allowing for quick visual identification of sustained uptrends, consolidations, or heavy sell-offs leading into current market conditions.*
+![90 Day Price Trends](data/visualisations/01%20Day%20Price%20Trends.png)
+
+### 5. 30-Day Portfolio Performance
+*This bar chart isolates short-term relative strength by calculating the cumulative percentage return for each ticker over the trailing 30 days. By implementing dynamic colour-coding (green for positive returns, red for negative) and sorting the assets by performance, this visual acts as an instant momentum screener. It allows a portfolio manager to immediately identify which equities are currently leading or lagging the broader market.*
+![30 Day Performance](data/visualisations/02%2030%20Day%20Performance%20Chart.png)
+
+### 6. Asset Correlation Matrix
+*This heatmap calculates the Pearson correlation coefficient between the daily returns of all assets in the portfolio. It is a critical quantitative tool for risk management and diversification. By visualizing how closely different stocks move together (where 1.0 represents perfect positive correlation), a portfolio manager can instantly identify redundant risk exposure (e.g., highly correlated tech equities moving in lockstep) or discover truly uncorrelated assets to hedge against sector-wide drawdowns.*
+![Stock Correlation Matrix](data/visualisations/03_correlation_matrix.png)
+
+
 ## 💻 Advanced SQL Implementation
 Beyond Python transformations, the database is queried using advanced SQL techniques to track market performance. Example from `query.py` utilizing **Common Table Expressions (CTEs)** and **Window Functions**:
 
