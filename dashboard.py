@@ -4,7 +4,7 @@ import pandas as pd
 import sqlite3
 import matplotlib.pyplot as plt
 import seaborn as sns
-
+from streamlit import sidebar
 
 st.set_page_config(page_title="Stock Analysis Terminal", page_icon="📈", layout="wide")
 
@@ -53,6 +53,12 @@ end_date = st.sidebar.date_input(
     value=max_date,
     min_value=min_date,
     max_value=max_date
+)
+sidebar.markdown("### Volume Profile settings")
+volume_ticker = st.sidebar.selectbox(
+    "Select Single Asset for Volume Analysis:",
+    options=available_tickers,
+    index=available_tickers.index('SPY') if 'SPY' in available_tickers else 0
 )
 
 # Apply filters to data frame
@@ -105,6 +111,45 @@ if not filtered_df.empty:
     st.pyplot(fig_perf)
 else:
     st.warning("No data available for the selected date range.")
+
+st.divider()
+
+st.subheader(f"{volume_ticker} Volume Profile & Price Action")
+st.markdown("Tracking of volume of an asset over a specified period")
+
+# Filter data specifically for single ticker using global data range
+vol_df = df[
+    (df['ticker'] == volume_ticker) &
+    (df['date'] >= pd.to_datetime(start_date)) &
+    (df['date'] <= pd.to_datetime(end_date))
+]
+
+if not vol_df.empty:
+    # Create a 2-row figure, with the top row 3x taller than the bottom row
+    fig_vol, (ax_price, ax_vol) = plt.subplots(2, 1, figsize=(12, 8), gridspec_kw={'height_ratios': [3, 1]},
+                                               sharex=True)
+
+    # Top Chart: Price action
+    ax_price.plot(vol_df['date'], vol_df['close'], color='#2c3e50', linewidth=1.5)
+    ax_price.set_ylabel('Price ($)')
+    ax_price.grid(True, linestyle=':', alpha=0.6)
+
+    # Bottom Chart: Directional Volume
+    vol_colors = ['#2ecc71' if val >= 0 else '#e74c3c' for val in vol_df['daily_return']]
+    ax_vol.bar(vol_df['date'], vol_df['volume'], color=vol_colors, alpha=0.8)
+    ax_vol.set_ylabel('Volume traded')
+    ax_vol.set_xlabel('Date')
+    ax_vol.grid(True, linestyle=':', alpha=0.6)
+
+    # Format layout to prevent overlapping labels
+    plt.xticks(rotation=45)
+    fig_vol.tight_layout()
+
+    # Render in Streamlit
+    st.pyplot(fig_vol)
+
+else:
+    st.warning(f"No volume data available for {volume_ticker} in this date range.")
 
 st.divider()
 
