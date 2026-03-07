@@ -51,6 +51,16 @@ The pipeline automatically renders the following reports:
 *This heatmap calculates the Pearson correlation coefficient between the daily returns of all assets in the portfolio. It is a critical quantitative tool for risk management and diversification. By visualizing how closely different stocks move together (where 1.0 represents perfect positive correlation), a portfolio manager can instantly identify redundant risk exposure (e.g., highly correlated tech equities moving in lockstep) or discover truly uncorrelated assets to hedge against sector-wide drawdowns.*
 ![Stock Correlation Matrix](data/visualisations/03_correlation_matrix.png)
 
+## 🖥️ Interactive Streamlit Dashboard
+
+To make the data accessible to stakeholders and portfolio managers, this project includes a fully interactive web application (`dashboard.py`) built with Streamlit. The dashboard queries the local SQLite database in real-time, translating the raw backend ETL data into an intuitive quantitative terminal.
+
+**Key Dashboard Features:**
+* **Live KPI Metrics:** Dynamic cards calculating the latest closing prices and daily percentage returns for selected assets.
+* **Interactive Controls:** A customizable sidebar allowing users to filter the entire dashboard by specific tickers and custom date ranges.
+* **Custom Period Performance:** A reactive bar chart that instantly recalculates the total percentage return for selected assets based on the user-defined lookback period.
+* **Isolated Volume Profiling:** A dedicated asset selector that renders a dual-pane chart, stacking price action directly over directional volume to isolate institutional capital flow.
+* **Dynamic Advanced Analytics:** The Asset Correlation Matrix and Annualized Risk vs. Return scatter plots automatically recalculate and redraw themselves based on the current sidebar filters.
 
 ## 💻 Advanced SQL Implementation
 Beyond Python transformations, the database is queried using advanced SQL techniques to track market performance. Example from `query.py` utilizing **Common Table Expressions (CTEs)** and **Window Functions**:
@@ -96,3 +106,17 @@ pip install -r requirements.txt
 **3. Execute Pipeline
 ```bash
 python run_pipeline.py
+
+### 🖥️ 4. Launch the Interactive Dashboard
+
+Once the database is populated by the ETL pipeline, you can spin up the interactive frontend terminal locally.
+
+Run this command in your terminal:
+```bash
+streamlit run dashboard.py
+
+(Note for Windows / Git Bash users: If the streamlit command is not recognized in your path, use Python's module execution instead:)
+```bash
+python -m streamlit run dashboard.py
+
+The application will automatically launch in your default web browser at "http://localhost:8501"
