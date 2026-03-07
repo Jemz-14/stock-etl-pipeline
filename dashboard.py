@@ -36,8 +36,31 @@ available_tickers = sorted(df['ticker'].unique())
 selected_tickers = st.sidebar.multiselect("Select ticker", options=available_tickers,
     default=['SPY', 'QQQ', 'NVDA', 'TSLA']) # Default selection so the screen isn't empty
 
+# Data Range filter
+st.sidebar.markdown("### Date range")
+min_date = df['date'].min()
+max_date = df['date'].max()
+
+start_date = st.sidebar.date_input(
+    "Start Date",
+    value=max_date - pd.Timedelta(days=30), # Defaults to a 30-day lookback
+    min_value=min_date,
+    max_value=max_date
+)
+
+end_date = st.sidebar.date_input(
+    "End Date",
+    value=max_date,
+    min_value=min_date,
+    max_value=max_date
+)
+
 # Apply filters to data frame
-filtered_df = df[df['ticker'].isin(selected_tickers)]
+filtered_df = df[
+    (df['ticker'].isin(selected_tickers)) &
+    (df['date'] >= pd.to_datetime(start_date)) &
+    (df['date'] <= pd.to_datetime(end_date))
+]
 
 # Dashboard content
 st.subheader("Data overview")
@@ -49,6 +72,39 @@ st.dataframe(
     use_container_width=True,
     height=250
 )
+
+st.divider()
+
+st.subheader(f"📊 Total Return ({start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')})")
+
+if not filtered_df.empty:
+    # Calculate performance for each selected ticker
+    performance_data = []
+    for ticker in selected_tickers:
+        t_df = filtered_df[filtered_df['ticker'] == ticker].sort_values('date')
+        if not t_df.empty:
+            first_close = t_df['close'].iloc[0]
+            last_close = t_df['close'].iloc[-1]
+            pct_change = ((last_close - first_close) / first_close) * 100
+            performance_data.append({'Ticker': ticker, 'Return': pct_change})
+
+    perf_df = pd.DataFrame(performance_data).sort_values(by='Return', ascending=False)
+    fig_perf, ax_perf = plt.subplots(figsize=(12, 5))
+
+    # Dynamic color mapping (Green if >= 0, Red if < 0)
+    colours = ['#2ecc71' if val >= 0 else '#e74c3c' for val in perf_df['Return']]
+
+    sns.barplot(data=perf_df, x='Ticker', y='Return', palette=colours, ax=ax_perf)
+
+    # Formatting
+    ax_perf.axhline(0, color='black', linewidth=1)
+    ax_perf.set_ylabel('Percentage Return (%)')
+    ax_perf.set_xlabel('Ticker')
+    ax_perf.grid(True, axis='y', linestyle=':', alpha=0.6)
+
+    st.pyplot(fig_perf)
+else:
+    st.warning("No data available for the selected date range.")
 
 st.divider()
 
