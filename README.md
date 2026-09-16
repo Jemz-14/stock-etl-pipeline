@@ -10,7 +10,7 @@ An automated, production-ready ETL (Extract, Transform, Load) pipeline that fetc
 
 I built this pipeline to automate quantitative analysis for a broader equity portfolio. Instead of manually scanning charts, this pipeline automatically flags overbought/oversold conditions, visualizes true capital flow (Dollar Volume), and maps the annualized risk-adjusted returns of target assets.
 
-## 🏗️ Pipeline Architecture
+## Pipeline Architecture
 
 The pipeline is orchestrated by a master `run_pipeline.py` script featuring automated logging, executing the following workflow:
 
