@@ -107,7 +107,7 @@ pip install -r requirements.txt
 ```bash
 python run_pipeline.py
 
-### 🖥️ 4. Launch the Interactive Dashboard
+### 4. Launch the Interactive Dashboard
 
 Once the database is populated by the ETL pipeline, you can spin up the interactive frontend terminal locally.
 
