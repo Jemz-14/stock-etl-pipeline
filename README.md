@@ -1,11 +1,11 @@
-# 📈 End-to-End Stock Market ETL & Analytics Pipeline
+#  End-to-End Stock Market ETL & Analytics Pipeline
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)
 ![Pandas](https://img.shields.io/badge/Pandas-Data%20Wrangling-150458.svg)
 ![SQLite](https://img.shields.io/badge/SQLite-Database-003B57.svg)
 ![Seaborn](https://img.shields.io/badge/Seaborn-Data%20Viz-4C72B0.svg)
 
-## 📌 Project Overview
+## Project Overview
 An automated, production-ready ETL (Extract, Transform, Load) pipeline that fetches daily market data, calculates key technical indicators, loads the data into a relational database, and generates institutional-grade visualizations. 
 
 I built this pipeline to automate quantitative analysis for a broader equity portfolio. Instead of manually scanning charts, this pipeline automatically flags overbought/oversold conditions, visualizes true capital flow (Dollar Volume), and maps the annualized risk-adjusted returns of target assets.
@@ -23,7 +23,7 @@ The pipeline is orchestrated by a master `run_pipeline.py` script featuring auto
 3. **Load (`load.py`)**: Inserts the transformed data into a local `SQLite` database (`stock_data.db`) using an Upsert (`INSERT OR REPLACE`) strategy to prevent duplication.
 4. **Analyze (`analysis.py` & `query.py`)**: Executes complex SQL queries to screen for setups and generates automated Matplotlib/Seaborn visualizations.
 
-## 📊 Analytical Output & Visualizations
+## Analytical Output & Visualizations
 
 The pipeline automatically renders the following reports:
 
@@ -62,7 +62,7 @@ To make the data accessible to stakeholders and portfolio managers, this project
 * **Isolated Volume Profiling:** A dedicated asset selector that renders a dual-pane chart, stacking price action directly over directional volume to isolate institutional capital flow.
 * **Dynamic Advanced Analytics:** The Asset Correlation Matrix and Annualized Risk vs. Return scatter plots automatically recalculate and redraw themselves based on the current sidebar filters.
 
-## 💻 Advanced SQL Implementation
+##  Advanced SQL Implementation
 Beyond Python transformations, the database is queried using advanced SQL techniques to track market performance. Example from `query.py` utilizing **Common Table Expressions (CTEs)** and **Window Functions**:
 
 ```sql
@@ -93,7 +93,7 @@ ORDER BY month DESC;
 
 
 
-## 🚀 How to Run
+##  How to Run
 **1. Clone the repository**
 ```bash
 git clone [https://github.com/Jemz-14/stock-etl-pipeline.git](https://github.com/Jemz-14/stock-etl-pipeline.git)
